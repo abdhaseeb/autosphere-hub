@@ -9,3 +9,8 @@ export const fetchOrdersTrend = async() => {
     const {data} = await api.get('/dashboard/order-trend');
     return data;
 }
+
+export const fetchTopSuppliers = async() => {
+    const { data } = await api.get('/dashboard/top-suppliers');
+    return data;
+}
