@@ -1,9 +1,11 @@
 import KPIBox from "../components/KPIBox";
 import OrderTrendChart from "../components/charts/OrderTrendChart";
-import { useKPIs, useOrdersTrend } from "../hooks/useDashboard";
+import { useKPIs, useOrdersTrend } from "../hooks/useDashboard.js";
+import { useRealtime } from "../hooks/useRealtime.js";
 import {formatCurrency} from '../utils/formatCurrency.js';
 
 const dashboard = () => {
+    useRealtime();
     const { data: kpis, isLoading: kpiLoading } = useKPIs();
     const { data: trend, isLoading: trendLoading } = useOrdersTrend();
     //const { data } = useTopSuppliers();

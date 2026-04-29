@@ -12,7 +12,9 @@ export const getOrderById = async(id) => {
 export const createOrder = async(data) => {
     const {supplierId, items} = data;
 
-    return prisma.$transaction(async (tx) => {
+    const order = await repo.createOrder(data);
+
+    const order= await prisma.$transaction(async (tx) => {
         let totalAmount=0;
         
         for(const item of items){
@@ -22,16 +24,9 @@ export const createOrder = async(data) => {
     
             if(!product) throw new Error('Product not found');
     
-            const inventory = await tx.inventory.findUnique({
-                where: {productId: item.productId}
-            })
-            if(!inventory || inventory.availableQty < item.quantity){
-                throw new Error(`Insufficient stock for item ${item.productId}`);
-            } 
-    
             totalAmount += product.price * item.quantity;
             
-            //safe update
+            //concurrency safe update
             const updated = await tx.inventory.updateMany({
                 where: { 
                     productId: item.productId,
@@ -44,23 +39,35 @@ export const createOrder = async(data) => {
             });
 
             if(updated.count === 0)
-                    throw new Error(`Race condition: Stock changed for ${item.productId}`);
+                throw new Error(`Insufficient stock for product : ${item.productId}`);
         };
 
-        //calc + validate inventory
-        const order = await tx.order.create({
+        //Create irder AFTER inventory success
+        const createOrder = await tx.order.create({
             data: {
                 supplierId, 
                 totalAmount,
                 status: 'PENDING',
                 items: {
-                    create: items,
+                    create: items.map( (item) => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.price, //optional override below
+                    })),
                 },
             },
             include: { items: true },
         });
 
-        return order;
+        return createOrder;
     });
 
+    //emit only after transaction success
+    io.emit('Order_created', {
+        orderId: order.id,
+        supplierId: order.supplierId,
+        totalAmount: order.totalAmount,
+    });
+
+    return order;
 };
