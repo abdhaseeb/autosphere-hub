@@ -1,7 +1,7 @@
 # autosphere-hub
 
 # Supplier Operations Dashboard System
-A production-grade full-stack system for managing supplier operations in an automobile company.
+A production-grade full-stack system for managing supplier operations and analytics in an automobile company.
 
 ## 🚀 Tech Stack
 
@@ -10,6 +10,7 @@ A production-grade full-stack system for managing supplier operations in an auto
 * PostgreSQL + Prisma
 * Redis (Caching)
 * BullMQ (Background Jobs)
+* AI: OpenAI API
 
 ### Frontend
 * React (Vite)
@@ -24,6 +25,7 @@ A production-grade full-stack system for managing supplier operations in an auto
 * Service request handling
 * Advanced dashboard (KPIs, trends)
 * Pre-aggregated analytics (optimized queries)
+* AI-generated insights
 
 ---
 
@@ -62,5 +64,15 @@ npm run dev
 ---
 ## 📌 Future Improvements
 * Real-time updates (WebSockets)
-* AI insights
 * Deployment
+
+---
+## 🧠 BIG PICTURE
+User → API → Cache → Aggregated DB → Response
+                   ↑
+            Background Jobs
+                   ↑
+              Raw Data Tables
+
+Real-time events → WebSocket → UI refresh
+AI layer → Interprets aggregated metrics
