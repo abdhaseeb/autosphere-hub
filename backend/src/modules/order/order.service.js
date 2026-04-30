@@ -12,7 +12,7 @@ export const getOrderById = async(id) => {
 export const createOrder = async(data) => {
     const {supplierId, items} = data;
 
-    const order = await repo.createOrder(data);
+    //const order = await repo.createOrder(data);
 
     const order= await prisma.$transaction(async (tx) => {
         let totalAmount=0;
